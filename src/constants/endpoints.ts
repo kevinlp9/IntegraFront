@@ -1,4 +1,15 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const rawApiUrl = import.meta.env.VITE_API_URL as string | undefined
+
+if (!rawApiUrl) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    'VITE_API_URL no está definida. Usando http://localhost:8000 como ' +
+      'fallback de desarrollo. Configúrala en producción (Render, etc).',
+  )
+}
+
+/** Base URL of the backend API. Always set VITE_API_URL explicitly in production. */
+export const API_BASE_URL = (rawApiUrl ?? 'http://localhost:8000').replace(/\/$/, '')
 
 export const ENDPOINTS = {
   auth: {
