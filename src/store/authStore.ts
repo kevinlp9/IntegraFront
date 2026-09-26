@@ -1,27 +1,27 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { User } from '@/types'
+import type { Session } from '@supabase/supabase-js'
+import type { HostUser } from '@/types'
 
 interface AuthState {
-  user: User | null
-  token: string | null
+  session: Session | null
+  hostUser: HostUser | null
   isLoggedIn: boolean
-  setUser: (user: User) => void
-  setSession: (user: User, token: string) => void
+  /** True once the initial Supabase session check has resolved. */
+  isInitialized: boolean
+  setSession: (session: Session | null) => void
+  setHostUser: (user: HostUser | null) => void
+  setInitialized: () => void
   logout: () => void
 }
 
-/** Global authentication state, persisted to localStorage. */
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      isLoggedIn: false,
-      setUser: (user) => set({ user }),
-      setSession: (user, token) => set({ user, token, isLoggedIn: true }),
-      logout: () => set({ user: null, token: null, isLoggedIn: false }),
-    }),
-    { name: 'integra-auth' },
-  ),
-)
+/** Global auth state for the host, backed by the Supabase session. */
+export const useAuthStore = create<AuthState>((set) => ({
+  session: null,
+  hostUser: null,
+  isLoggedIn: false,
+  isInitialized: false,
+  setSession: (session) => set({ session, isLoggedIn: !!session }),
+  setHostUser: (hostUser) => set({ hostUser }),
+  setInitialized: () => set({ isInitialized: true }),
+  logout: () => set({ session: null, hostUser: null, isLoggedIn: false }),
+}))

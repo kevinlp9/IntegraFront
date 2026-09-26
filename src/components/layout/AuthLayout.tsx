@@ -7,22 +7,23 @@ export interface AuthLayoutProps {
   subtitle?: string
 }
 
-/** Centered card layout used by Login/Signup pages. */
+/** Centered glass card layout used by Login and Join pages, over a gradient hero background. */
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 px-4 dark:from-primary-900 dark:via-gray-900 dark:to-primary-900">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
+      <div className="pointer-events-none absolute inset-0 bg-hero-gradient opacity-20 blur-3xl" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800"
+        className="glass-card relative w-full max-w-md p-8 shadow-2xl shadow-primary-900/40"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-h3 text-primary-900 dark:text-white">
+          <h1 className="font-display text-h3 font-bold text-text-primary">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-1 text-body-sm text-gray-500">{subtitle}</p>
+            <p className="mt-1 text-body-sm text-text-secondary">{subtitle}</p>
           )}
         </div>
         {children}

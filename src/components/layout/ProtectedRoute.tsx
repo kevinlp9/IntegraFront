@@ -1,25 +1,28 @@
 import { Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useAuthStore } from '@/store/authStore'
-import type { UserRole } from '@/types'
+import { Spinner } from '@/components/common/Spinner'
 
 export interface ProtectedRouteProps {
   children: ReactNode
-  role?: UserRole
 }
 
-/** Redirects to /login if unauthenticated, or to the correct home if wrong role. */
-export function ProtectedRoute({ children, role }: ProtectedRouteProps) {
-  const { isLoggedIn, user } = useAuthStore()
+/**
+ * Redirects to /login if the host is not authenticated via Supabase.
+ * Waits for `isInitialized` (the first getSession() check) before deciding,
+ * to avoid bouncing back to /login while the session is still being read.
+ */
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { isLoggedIn, isInitialized } = useAuthStore()
 
-  if (!isLoggedIn) return <Navigate to="/login" replace />
-  if (role && user?.role !== role) {
+  if (!isInitialized) {
     return (
-      <Navigate
-        to={user?.role === 'teacher' ? '/teacher/dashboard' : '/join'}
-        replace
-      />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Spinner size="lg" className="text-primary-500" />
+      </div>
     )
   }
+
+  if (!isLoggedIn) return <Navigate to="/login" replace />
   return <>{children}</>
 }

@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1.5 block text-body-sm font-medium text-gray-700 dark:text-gray-300"
+            className="mb-1.5 block text-body-sm font-medium text-text-secondary"
           >
             {label}
           </label>
@@ -37,7 +37,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         />
         {error && <p className="mt-1 text-caption text-error">{error}</p>}
         {!error && helperText && (
-          <p className="mt-1 text-caption text-gray-500">{helperText}</p>
+          <p className="mt-1 text-caption text-text-secondary">{helperText}</p>
         )}
       </div>
     )
@@ -57,7 +57,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-1.5 block text-body-sm font-medium text-gray-700 dark:text-gray-300"
+            className="mb-1.5 block text-body-sm font-medium text-text-secondary"
           >
             {label}
           </label>
@@ -75,7 +75,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
         {error && <p className="mt-1 text-caption text-error">{error}</p>}
         {!error && helperText && (
-          <p className="mt-1 text-caption text-gray-500">{helperText}</p>
+          <p className="mt-1 text-caption text-text-secondary">{helperText}</p>
         )}
       </div>
     )
@@ -113,7 +113,7 @@ export function Select({
       {label && (
         <label
           htmlFor={selectId}
-          className="mb-1.5 block text-body-sm font-medium text-gray-700 dark:text-gray-300"
+          className="mb-1.5 block text-body-sm font-medium text-text-secondary"
         >
           {label}
         </label>
@@ -140,7 +140,7 @@ export function Select({
       </select>
       {error && <p className="mt-1 text-caption text-error">{error}</p>}
       {!error && helperText && (
-        <p className="mt-1 text-caption text-gray-500">{helperText}</p>
+        <p className="mt-1 text-caption text-text-secondary">{helperText}</p>
       )}
     </div>
   )

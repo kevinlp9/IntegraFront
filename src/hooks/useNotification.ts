@@ -5,9 +5,7 @@ export function useNotification() {
   const success = (message: string) => toast.success(message)
   const error = (message: string) => toast.error(message)
   const info = (message: string) =>
-    toast(message, { icon: 'ℹ️', style: { background: '#EFF6FF' } })
-  const warning = (message: string) =>
-    toast(message, { icon: '⚠️', style: { background: '#FEF3C7' } })
+    toast(message, { icon: 'ℹ️', style: { background: '#1E2740', color: '#F8FAFC' } })
 
-  return { success, error, info, warning }
+  return { success, error, info }
 }

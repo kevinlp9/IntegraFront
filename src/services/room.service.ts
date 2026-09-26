@@ -3,100 +3,62 @@ import { api } from './api'
 import type {
   CreateExpositionPayload,
   CreateRoomPayload,
-  CreateRubricPayload,
   Exposition,
   Room,
-  RubricCriteria,
+  RoomReport,
+  RubricCriterion,
+  RubricCriterionCreate,
 } from '@/types'
 
+/** Host-side room service. All calls require a valid Supabase JWT. */
 export const roomService = {
-  async list(): Promise<Room[]> {
-    const { data } = await api.get<Room[]>(ENDPOINTS.rooms.list)
-    return data
-  },
-
   async create(payload: CreateRoomPayload): Promise<Room> {
-    const { data } = await api.post<Room>(ENDPOINTS.rooms.create, payload)
-    return data
+    return api.post<Room>(ENDPOINTS.rooms.create, payload)
   },
 
-  async detail(id: string): Promise<Room> {
-    const { data } = await api.get<Room>(ENDPOINTS.rooms.detail(id))
-    return data
+  async list(): Promise<Room[]> {
+    return api.get<Room[]>(ENDPOINTS.rooms.list)
   },
 
-  async update(id: string, payload: Partial<CreateRoomPayload>): Promise<Room> {
-    const { data } = await api.put<Room>(ENDPOINTS.rooms.update(id), payload)
-    return data
-  },
-
-  async remove(id: string): Promise<void> {
-    await api.delete(ENDPOINTS.rooms.delete(id))
-  },
-
-  async activateTeam(id: string, teamId: string): Promise<void> {
-    await api.put(ENDPOINTS.rooms.activateTeam(id, teamId))
-  },
-
-  async joinByCode(joinCode: string): Promise<Room> {
-    const { data } = await api.get<Room>(ENDPOINTS.rooms.joinByCode(joinCode))
-    return data
-  },
-
-  // Rubrics
   async createRubric(
-    roomId: string,
-    payload: CreateRubricPayload,
-  ): Promise<RubricCriteria> {
-    const { data } = await api.post<RubricCriteria>(
-      ENDPOINTS.rubrics.create(roomId),
-      payload,
-    )
-    return data
+    roomId: number,
+    payload: RubricCriterionCreate,
+  ): Promise<RubricCriterion> {
+    return api.post<RubricCriterion>(ENDPOINTS.rooms.rubric(roomId), payload)
   },
 
-  async listRubrics(roomId: string): Promise<RubricCriteria[]> {
-    const { data } = await api.get<RubricCriteria[]>(
-      ENDPOINTS.rubrics.list(roomId),
-    )
-    return data
+  async listRubric(roomId: number): Promise<RubricCriterion[]> {
+    return api.get<RubricCriterion[]>(ENDPOINTS.rooms.rubric(roomId))
   },
 
-  async deleteRubric(id: string): Promise<void> {
-    await api.delete(ENDPOINTS.rubrics.delete(id))
-  },
-
-  // Expositions
   async createExposition(
-    roomId: string,
+    roomId: number,
     payload: CreateExpositionPayload,
   ): Promise<Exposition> {
-    const { data } = await api.post<Exposition>(
-      ENDPOINTS.expositions.create(roomId),
-      payload,
-    )
-    return data
+    return api.post<Exposition>(ENDPOINTS.rooms.expositions(roomId), payload)
   },
 
-  async listExpositions(roomId: string): Promise<Exposition[]> {
-    const { data } = await api.get<Exposition[]>(
-      ENDPOINTS.expositions.list(roomId),
-    )
-    return data
+  async listExpositions(roomId: number): Promise<Exposition[]> {
+    return api.get<Exposition[]>(ENDPOINTS.rooms.expositions(roomId))
   },
 
-  async updateExposition(
-    id: string,
-    payload: Partial<CreateExpositionPayload>,
-  ): Promise<Exposition> {
-    const { data } = await api.put<Exposition>(
-      ENDPOINTS.expositions.update(id),
-      payload,
-    )
-    return data
+  async start(roomId: number): Promise<Room> {
+    return api.put<Room>(ENDPOINTS.rooms.start(roomId))
   },
 
-  async deleteExposition(id: string): Promise<void> {
-    await api.delete(ENDPOINTS.expositions.delete(id))
+  async next(roomId: number): Promise<Room> {
+    return api.put<Room>(ENDPOINTS.rooms.next(roomId))
+  },
+
+  async activate(roomId: number, expositionId: number): Promise<Room> {
+    return api.put<Room>(ENDPOINTS.rooms.activate(roomId, expositionId))
+  },
+
+  async finish(roomId: number): Promise<Room> {
+    return api.put<Room>(ENDPOINTS.rooms.finish(roomId))
+  },
+
+  async report(roomId: number): Promise<RoomReport> {
+    return api.get<RoomReport>(ENDPOINTS.rooms.report(roomId))
   },
 }

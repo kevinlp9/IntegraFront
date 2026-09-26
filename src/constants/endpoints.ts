@@ -1,35 +1,23 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api'
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 export const ENDPOINTS = {
   auth: {
-    login: '/auth/login',
-    signup: '/auth/signup',
-    me: '/auth/me',
-    logout: '/auth/logout',
+    me: '/api/auth/me',
   },
   rooms: {
-    list: '/rooms',
-    create: '/rooms',
-    detail: (id: string) => `/rooms/${id}`,
-    update: (id: string) => `/rooms/${id}`,
-    delete: (id: string) => `/rooms/${id}`,
-    activateTeam: (id: string, teamId: string) =>
-      `/rooms/${id}/activate-team/${teamId}`,
-    joinByCode: (joinCode: string) => `/rooms/join/${joinCode}`,
-    report: (id: string) => `/rooms/${id}/report`,
-  },
-  rubrics: {
-    create: (roomId: string) => `/rooms/${roomId}/rubric`,
-    list: (roomId: string) => `/rooms/${roomId}/rubrics`,
-    delete: (id: string) => `/rubric/${id}`,
-  },
-  expositions: {
-    create: (roomId: string) => `/rooms/${roomId}/expositions`,
-    list: (roomId: string) => `/rooms/${roomId}/expositions`,
-    update: (id: string) => `/expositions/${id}`,
-    delete: (id: string) => `/expositions/${id}`,
+    create: '/api/rooms',
+    list: '/api/rooms',
+    rubric: (roomId: number) => `/api/rooms/${roomId}/rubric`,
+    expositions: (roomId: number) => `/api/rooms/${roomId}/expositions`,
+    start: (roomId: number) => `/api/rooms/${roomId}/start`,
+    next: (roomId: number) => `/api/rooms/${roomId}/next`,
+    activate: (roomId: number, expositionId: number) =>
+      `/api/rooms/${roomId}/activate/${expositionId}`,
+    finish: (roomId: number) => `/api/rooms/${roomId}/finish`,
+    report: (roomId: number) => `/api/rooms/${roomId}/report`,
+    joinByCode: (joinCode: string) => `/api/rooms/join/${joinCode}`,
   },
   evaluations: {
-    submit: '/evaluations/submit',
+    submit: '/api/evaluations/submit',
   },
 } as const

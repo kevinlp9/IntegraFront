@@ -1,178 +1,140 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { roomService } from '@/services/room.service'
-import { useRoomStore } from '@/store/roomStore'
 import { MESSAGES } from '@/constants/messages'
 import type {
   CreateExpositionPayload,
   CreateRoomPayload,
-  CreateRubricPayload,
+  RubricCriterionCreate,
 } from '@/types'
 
-/** Fetches and manages the teacher's room list. */
+/** Lists the host's rooms and exposes a create-room mutation. */
 export function useRooms() {
-  const { rooms, setRooms, addRoom } = useRoomStore()
-  const [isLoading, setIsLoading] = useState(false)
+  const queryClient = useQueryClient()
 
-  const fetchRooms = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const data = await roomService.list()
-      setRooms(data)
-    } catch {
-      toast.error(MESSAGES.generic.networkError)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [setRooms])
+  const roomsQuery = useQuery({
+    queryKey: ['rooms'],
+    queryFn: () => roomService.list(),
+  })
 
-  const createRoom = useCallback(
-    async (payload: CreateRoomPayload) => {
-      try {
-        const room = await roomService.create(payload)
-        addRoom(room)
-        toast.success(MESSAGES.room.createSuccess)
-        return room
-      } catch {
-        toast.error(MESSAGES.room.createError)
-        throw new Error(MESSAGES.room.createError)
-      }
+  const createRoom = useMutation({
+    mutationFn: (payload: CreateRoomPayload) => roomService.create(payload),
+    onSuccess: () => {
+      toast.success(MESSAGES.room.createSuccess)
+      void queryClient.invalidateQueries({ queryKey: ['rooms'] })
     },
-    [addRoom],
-  )
-
-  useEffect(() => {
-    void fetchRooms()
-  }, [fetchRooms])
-
-  return { rooms, isLoading, fetchRooms, createRoom }
-}
-
-/** Fetches and manages a single room's detail, criteria and expositions. */
-export function useRoom(roomId?: string) {
-  const {
-    currentRoom,
-    setCurrentRoom,
-    criteria,
-    setCriteria,
-    addCriteria,
-    removeCriteria,
-    expositions,
-    setExpositions,
-    addExposition,
-    updateExposition,
-    removeExposition,
-  } = useRoomStore()
-  const [isLoading, setIsLoading] = useState(false)
-
-  const fetchRoom = useCallback(async () => {
-    if (!roomId) return
-    setIsLoading(true)
-    try {
-      const [room, rubrics, teams] = await Promise.all([
-        roomService.detail(roomId),
-        roomService.listRubrics(roomId),
-        roomService.listExpositions(roomId),
-      ])
-      setCurrentRoom(room)
-      setCriteria(rubrics)
-      setExpositions(teams)
-    } catch {
-      toast.error(MESSAGES.generic.networkError)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [roomId, setCurrentRoom, setCriteria, setExpositions])
-
-  useEffect(() => {
-    void fetchRoom()
-  }, [fetchRoom])
-
-  const createRubric = useCallback(
-    async (payload: CreateRubricPayload) => {
-      if (!roomId) return
-      try {
-        const rubric = await roomService.createRubric(roomId, payload)
-        addCriteria(rubric)
-        toast.success(MESSAGES.rubric.createSuccess)
-      } catch {
-        toast.error(MESSAGES.rubric.createError)
-      }
-    },
-    [roomId, addCriteria],
-  )
-
-  const deleteRubric = useCallback(
-    async (id: string) => {
-      try {
-        await roomService.deleteRubric(id)
-        removeCriteria(id)
-        toast.success(MESSAGES.rubric.deleteSuccess)
-      } catch {
-        toast.error(MESSAGES.generic.error)
-      }
-    },
-    [removeCriteria],
-  )
-
-  const createExposition = useCallback(
-    async (payload: CreateExpositionPayload) => {
-      if (!roomId) return
-      try {
-        const exposition = await roomService.createExposition(
-          roomId,
-          payload,
-        )
-        addExposition(exposition)
-        toast.success(MESSAGES.exposition.createSuccess)
-      } catch {
-        toast.error(MESSAGES.generic.error)
-      }
-    },
-    [roomId, addExposition],
-  )
-
-  const activateTeam = useCallback(
-    async (teamId: string) => {
-      if (!roomId) return
-      try {
-        await roomService.activateTeam(roomId, teamId)
-        expositions.forEach((exp) => {
-          updateExposition(exp.id, {
-            status: exp.id === teamId ? 'active' : exp.status,
-          })
-        })
-        toast.success(MESSAGES.room.activateTeamSuccess)
-      } catch {
-        toast.error(MESSAGES.generic.error)
-      }
-    },
-    [roomId, expositions, updateExposition],
-  )
-
-  const deleteExposition = useCallback(
-    async (id: string) => {
-      try {
-        await roomService.deleteExposition(id)
-        removeExposition(id)
-        toast.success(MESSAGES.exposition.deleteSuccess)
-      } catch {
-        toast.error(MESSAGES.generic.error)
-      }
-    },
-    [removeExposition],
-  )
+    onError: () => toast.error(MESSAGES.room.createError),
+  })
 
   return {
-    room: currentRoom,
-    criteria,
-    expositions,
-    isLoading,
-    fetchRoom,
-    createRubric,
-    deleteRubric,
-    createExposition,
-    activateTeam,
-    deleteExposition,
+    rooms: roomsQuery.data ?? [],
+    isLoading: roomsQuery.isLoading,
+    createRoom: createRoom.mutateAsync,
+    isCreating: createRoom.isPending,
+  }
+}
+
+/** Host detail view: room's rubric, expositions, and live-control mutations. */
+export function useRoom(roomId?: number) {
+  const queryClient = useQueryClient()
+  const enabled = !!roomId
+
+  const rubricQuery = useQuery({
+    queryKey: ['rubric', roomId],
+    queryFn: () => roomService.listRubric(roomId!),
+    enabled,
+  })
+
+  const expositionsQuery = useQuery({
+    queryKey: ['expositions', roomId],
+    queryFn: () => roomService.listExpositions(roomId!),
+    enabled,
+  })
+
+  // The room list already contains the room; refetch it here too so the
+  // detail page reflects live status changes (waiting/active/finished).
+  const roomsQuery = useQuery({
+    queryKey: ['rooms'],
+    queryFn: () => roomService.list(),
+    enabled,
+    refetchInterval: 3000,
+  })
+  const room = roomsQuery.data?.find((r) => r.id === roomId) ?? null
+
+  const invalidateAll = () => {
+    void queryClient.invalidateQueries({ queryKey: ['rooms'] })
+    void queryClient.invalidateQueries({ queryKey: ['expositions', roomId] })
+  }
+
+  const createRubric = useMutation({
+    mutationFn: (payload: RubricCriterionCreate) =>
+      roomService.createRubric(roomId!, payload),
+    onSuccess: () => {
+      toast.success(MESSAGES.rubric.createSuccess)
+      void queryClient.invalidateQueries({ queryKey: ['rubric', roomId] })
+    },
+    onError: () => toast.error(MESSAGES.rubric.createError),
+  })
+
+  const createExposition = useMutation({
+    mutationFn: (payload: CreateExpositionPayload) =>
+      roomService.createExposition(roomId!, payload),
+    onSuccess: () => {
+      toast.success(MESSAGES.exposition.createSuccess)
+      void queryClient.invalidateQueries({ queryKey: ['expositions', roomId] })
+    },
+    onError: () => toast.error(MESSAGES.exposition.createError),
+  })
+
+  const start = useMutation({
+    mutationFn: () => roomService.start(roomId!),
+    onSuccess: () => {
+      toast.success(MESSAGES.room.startSuccess)
+      invalidateAll()
+    },
+    onError: () => toast.error(MESSAGES.generic.error),
+  })
+
+  const next = useMutation({
+    mutationFn: () => roomService.next(roomId!),
+    onSuccess: () => {
+      toast.success(MESSAGES.room.nextSuccess)
+      invalidateAll()
+    },
+    onError: () => toast.error(MESSAGES.generic.error),
+  })
+
+  const activate = useMutation({
+    mutationFn: (expositionId: number) =>
+      roomService.activate(roomId!, expositionId),
+    onSuccess: () => {
+      toast.success(MESSAGES.room.activateSuccess)
+      invalidateAll()
+    },
+    onError: () => toast.error(MESSAGES.generic.error),
+  })
+
+  const finish = useMutation({
+    mutationFn: () => roomService.finish(roomId!),
+    onSuccess: () => {
+      toast.success(MESSAGES.room.finishSuccess)
+      invalidateAll()
+    },
+    onError: () => toast.error(MESSAGES.generic.error),
+  })
+
+  return {
+    room,
+    criteria: rubricQuery.data ?? [],
+    expositions: expositionsQuery.data ?? [],
+    isLoading: rubricQuery.isLoading || expositionsQuery.isLoading,
+    createRubric: createRubric.mutateAsync,
+    createExposition: createExposition.mutateAsync,
+    start: start.mutateAsync,
+    next: next.mutateAsync,
+    activate: activate.mutateAsync,
+    finish: finish.mutateAsync,
+    isMutating:
+      start.isPending || next.isPending || activate.isPending || finish.isPending,
   }
 }

@@ -1,58 +1,68 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { supabase, loginWithGoogle } from '@/services/supabase'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/store/authStore'
 import { MESSAGES } from '@/constants/messages'
-import type { LoginCredentials, SignupPayload } from '@/types'
 
-/** Encapsulates login/signup/logout flows and exposes current auth state. */
+/**
+ * Manages the host's Supabase session: listens for auth state changes,
+ * syncs the profile via GET /api/auth/me once logged in, and exposes
+ * login/logout actions.
+ */
 export function useAuth() {
   const navigate = useNavigate()
-  const { user, token, isLoggedIn, setSession, logout: clearSession } =
-    useAuthStore()
+  const {
+    session,
+    hostUser,
+    isLoggedIn,
+    isInitialized,
+    setSession,
+    setHostUser,
+    setInitialized,
+    logout,
+  } = useAuthStore()
 
-  const login = useCallback(
-    async (credentials: LoginCredentials) => {
-      try {
-        const { user: loggedUser, token: authToken } =
-          await authService.login(credentials)
-        setSession(loggedUser, authToken)
-        toast.success(MESSAGES.auth.loginSuccess)
-        navigate(
-          loggedUser.role === 'teacher' ? '/teacher/dashboard' : '/student',
-        )
-        return loggedUser
-      } catch {
-        toast.error(MESSAGES.auth.loginError)
-        throw new Error(MESSAGES.auth.loginError)
-      }
-    },
-    [navigate, setSession],
-  )
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+      setInitialized()
+    })
 
-  const signup = useCallback(
-    async (payload: SignupPayload) => {
-      try {
-        const { user: newUser, token: authToken } =
-          await authService.signup(payload)
-        setSession(newUser, authToken)
-        toast.success(MESSAGES.auth.signupSuccess)
-        navigate('/teacher/dashboard')
-        return newUser
-      } catch {
-        toast.error(MESSAGES.auth.signupError)
-        throw new Error(MESSAGES.auth.signupError)
-      }
-    },
-    [navigate, setSession],
-  )
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession)
+        setInitialized()
+      },
+    )
 
-  const logout = useCallback(() => {
-    clearSession()
+    return () => listener.subscription.unsubscribe()
+  }, [setSession, setInitialized])
+
+  useEffect(() => {
+    if (session && !hostUser) {
+      authService
+        .me()
+        .then(setHostUser)
+        .catch(() => toast.error(MESSAGES.generic.networkError))
+    }
+  }, [session, hostUser, setHostUser])
+
+  const login = useCallback(async () => {
+    try {
+      await loginWithGoogle()
+    } catch {
+      toast.error(MESSAGES.auth.loginError)
+    }
+  }, [])
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut()
+    logout()
     toast.success(MESSAGES.auth.logoutSuccess)
     navigate('/login')
-  }, [clearSession, navigate])
+  }, [logout, navigate])
 
-  return { user, token, isLoggedIn, login, signup, logout }
+  return { session, hostUser, isLoggedIn, isInitialized, login, logout: signOut }
 }

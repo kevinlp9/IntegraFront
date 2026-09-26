@@ -1,14 +1,21 @@
 import { ENDPOINTS } from '@/constants/endpoints'
 import { api } from './api'
-import type { RoomReport, SubmitEvaluationPayload } from '@/types'
+import type {
+  EvaluationSubmit,
+  EvaluationSubmitResponse,
+  RoomJoinResponse,
+} from '@/types'
 
+/** Public participant-facing service. Never requires authentication. */
 export const evaluationService = {
-  async submit(payload: SubmitEvaluationPayload): Promise<void> {
-    await api.post(ENDPOINTS.evaluations.submit, payload)
+  async joinByCode(joinCode: string): Promise<RoomJoinResponse> {
+    return api.get<RoomJoinResponse>(ENDPOINTS.rooms.joinByCode(joinCode))
   },
 
-  async getReport(roomId: string): Promise<RoomReport> {
-    const { data } = await api.get<RoomReport>(ENDPOINTS.rooms.report(roomId))
-    return data
+  async submit(payload: EvaluationSubmit): Promise<EvaluationSubmitResponse> {
+    return api.post<EvaluationSubmitResponse>(
+      ENDPOINTS.evaluations.submit,
+      payload,
+    )
   },
 }

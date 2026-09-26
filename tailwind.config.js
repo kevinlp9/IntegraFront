@@ -5,28 +5,34 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: '#0B0F19',
+        surface: '#151B2C',
+        'surface-elevated': '#1E2740',
         primary: {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6',
-          600: '#2563EB',
-          700: '#1E40AF',
-          800: '#1E3A8A',
-          900: '#0F172A',
-        },
-        secondary: {
-          50: '#F0FDF4',
-          100: '#DCFCE7',
-          600: '#16A34A',
-          700: '#15803D',
+          50: '#F5F3FF',
+          100: '#EDE9FE',
+          200: '#DDD6FE',
+          300: '#C4B5FD',
+          400: '#A78BFA',
+          500: '#8B5CF6',
+          600: '#7C3AED',
+          700: '#6D28D9',
+          800: '#5B21B6',
+          900: '#4C1D95',
+          DEFAULT: '#7C3AED',
         },
         accent: {
-          50: '#FEF3C7',
-          600: '#EA580C',
-          700: '#C2410C',
+          blue: '#3B82F6',
+          green: '#10B981',
+          red: '#EF4444',
+          amber: '#F59E0B',
+        },
+        text: {
+          primary: '#F8FAFC',
+          secondary: '#94A3B8',
+        },
+        border: {
+          DEFAULT: 'rgba(255,255,255,0.08)',
         },
         success: '#10B981',
         warning: '#F59E0B',
@@ -35,19 +41,24 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Poppins', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        h1: ['48px', { lineHeight: '1.2', fontWeight: '600' }],
-        h2: ['36px', { lineHeight: '1.2', fontWeight: '600' }],
+        h1: ['48px', { lineHeight: '1.2', fontWeight: '700' }],
+        h2: ['36px', { lineHeight: '1.2', fontWeight: '700' }],
         h3: ['24px', { lineHeight: '1.3', fontWeight: '600' }],
         'body-lg': ['18px', { lineHeight: '1.5', fontWeight: '400' }],
         body: ['16px', { lineHeight: '1.5', fontWeight: '400' }],
         'body-sm': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
         caption: ['12px', { lineHeight: '1.4', fontWeight: '500' }],
       },
+      backgroundImage: {
+        'hero-gradient': 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
+      },
       animation: {
         fadeIn: 'fadeIn 0.3s ease-in',
         slideUp: 'slideUp 0.3s ease-out',
+        pulseGlow: 'pulseGlow 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -57,6 +68,10 @@ export default {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.5)' },
+          '50%': { boxShadow: '0 0 0 8px rgba(16, 185, 129, 0)' },
         },
       },
     },

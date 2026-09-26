@@ -1,50 +1,34 @@
 import { useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  TrashIcon,
-  PlusIcon,
-  CheckCircleIcon,
-  ClockIcon,
-} from '@heroicons/react/24/outline'
+import { Plus, Trophy } from 'lucide-react'
 import { Card } from '@/components/common/Card'
 import { Input } from '@/components/common/Input'
 import { Button } from '@/components/common/Button'
-import { formatScore } from '@/utils/formatters'
 import type { CreateExpositionPayload, Exposition } from '@/types'
 
 export interface ExpositionsPanelProps {
   expositions: Exposition[]
-  onCreate: (payload: CreateExpositionPayload) => Promise<void>
-  onDelete: (id: string) => Promise<void>
-  onActivate: (id: string) => Promise<void>
+  currentExpositionId: number | null
+  onCreate: (payload: CreateExpositionPayload) => Promise<unknown>
 }
 
-const statusIcon: Record<Exposition['status'], ReactNode> = {
-  active: <CheckCircleIcon className="h-5 w-5 text-secondary-600" />,
-  pending: <ClockIcon className="h-5 w-5 text-gray-400" />,
-  completed: <CheckCircleIcon className="h-5 w-5 text-primary-600" />,
-}
-
-/** Manages a room's exposition teams: list, add, delete and activate. */
+/** Manages a room's exposition items (teams/rounds/players): list + add form. */
 export function ExpositionsPanel({
   expositions,
+  currentExpositionId,
   onCreate,
-  onDelete,
-  onActivate,
 }: ExpositionsPanelProps) {
-  const [teamName, setTeamName] = useState('')
-  const [topic, setTopic] = useState('')
+  const [name, setName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!teamName.trim()) return
+    if (!name.trim()) return
     setIsLoading(true)
     try {
-      await onCreate({ teamName: teamName.trim(), topic: topic.trim() })
-      setTeamName('')
-      setTopic('')
+      await onCreate({ name: name.trim() })
+      setName('')
     } finally {
       setIsLoading(false)
     }
@@ -52,8 +36,8 @@ export function ExpositionsPanel({
 
   return (
     <Card variant="outlined">
-      <h3 className="mb-4 text-h3 text-gray-900 dark:text-gray-50">
-        Equipos ({expositions.length})
+      <h3 className="mb-4 text-h3 text-text-primary">
+        Elementos ({expositions.length})
       </h3>
 
       <ul className="mb-4 space-y-2">
@@ -64,68 +48,50 @@ export function ExpositionsPanel({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
-              className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2.5 dark:bg-gray-700/50"
+              className={`flex items-center justify-between rounded-xl px-4 py-2.5 ${
+                exp.id === currentExpositionId
+                  ? 'bg-accent-green/10 ring-1 ring-accent-green/40'
+                  : 'bg-white/5'
+              }`}
             >
               <div className="flex items-center gap-2">
-                {statusIcon[exp.status]}
-                <div>
-                  <p className="text-body-sm font-medium text-gray-800 dark:text-gray-100">
-                    {exp.teamName}
-                  </p>
-                  {exp.topic && (
-                    <p className="text-caption text-gray-500">{exp.topic}</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                {exp.averageScore !== undefined && (
-                  <span className="text-body-sm font-semibold text-primary-700">
-                    {formatScore(exp.averageScore, 10)}
+                <span className="text-caption text-text-secondary">
+                  #{exp.order}
+                </span>
+                <p className="text-body-sm font-medium text-text-primary">
+                  {exp.name}
+                </p>
+                {exp.id === currentExpositionId && (
+                  <span className="rounded-full bg-accent-green/20 px-2 py-0.5 text-caption font-semibold text-accent-green">
+                    Activo
                   </span>
                 )}
-                {exp.status !== 'active' && (
-                  <button
-                    type="button"
-                    onClick={() => onActivate(exp.id)}
-                    className="text-caption font-semibold text-primary-600 hover:underline"
-                  >
-                    Activar
-                  </button>
-                )}
-                <button
-                  type="button"
-                  aria-label={`Eliminar ${exp.teamName}`}
-                  onClick={() => onDelete(exp.id)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-error"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
               </div>
+              {exp.final_score !== null && (
+                <span className="flex items-center gap-1 text-body-sm font-semibold text-accent-amber">
+                  <Trophy className="h-4 w-4" />
+                  {exp.final_score.toFixed(1)}
+                </span>
+              )}
             </motion.li>
           ))}
         </AnimatePresence>
         {expositions.length === 0 && (
-          <p className="py-4 text-center text-body-sm text-gray-400">
-            Aún no hay equipos registrados.
+          <p className="py-4 text-center text-body-sm text-text-secondary">
+            Aún no hay elementos registrados.
           </p>
         )}
       </ul>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
+      <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
-          placeholder="Nombre del equipo"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          className="flex-1"
-        />
-        <Input
-          placeholder="Tema (opcional)"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
+          placeholder="Ej: Equipo A, Ronda 1..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="flex-1"
         />
         <Button type="submit" isLoading={isLoading}>
-          <PlusIcon className="h-4 w-4" />
+          <Plus className="h-4 w-4" />
           Agregar
         </Button>
       </form>

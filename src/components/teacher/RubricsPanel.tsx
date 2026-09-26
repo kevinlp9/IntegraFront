@@ -1,39 +1,75 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { Plus, Star, ListChecks, ToggleLeft, MessageSquare } from 'lucide-react'
 import { Card } from '@/components/common/Card'
-import { Input } from '@/components/common/Input'
+import { Input, Select } from '@/components/common/Input'
 import { Button } from '@/components/common/Button'
-import type { CreateRubricPayload, RubricCriteria } from '@/types'
+import type { QuestionType, RubricCriterion, RubricCriterionCreate } from '@/types'
 
 export interface RubricsPanelProps {
-  criteria: RubricCriteria[]
-  onCreate: (payload: CreateRubricPayload) => Promise<void>
-  onDelete: (id: string) => Promise<void>
+  criteria: RubricCriterion[]
+  onCreate: (payload: RubricCriterionCreate) => Promise<unknown>
 }
 
-/** Manages a room's rubric criteria: list + add/remove form. */
-export function RubricsPanel({
-  criteria,
-  onCreate,
-  onDelete,
-}: RubricsPanelProps) {
+const typeOptions = [
+  { label: 'Calificación (rating)', value: 'rating' },
+  { label: 'Opción múltiple', value: 'multiple_choice' },
+  { label: 'Verdadero / Falso', value: 'true_false' },
+  { label: 'Texto libre', value: 'open_text' },
+]
+
+const typeIcon: Record<QuestionType, ReactNode> = {
+  rating: <Star className="h-4 w-4" />,
+  multiple_choice: <ListChecks className="h-4 w-4" />,
+  true_false: <ToggleLeft className="h-4 w-4" />,
+  open_text: <MessageSquare className="h-4 w-4" />,
+}
+
+/** Manages a room's questions (rubric criteria): list + dynamic add form per question_type. */
+export function RubricsPanel({ criteria, onCreate }: RubricsPanelProps) {
   const [name, setName] = useState('')
-  const [maxScore, setMaxScore] = useState('')
+  const [questionType, setQuestionType] = useState<QuestionType>('rating')
+  const [maxScore, setMaxScore] = useState('10')
+  const [optionsText, setOptionsText] = useState('')
+  const [correctAnswer, setCorrectAnswer] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const totalMax = criteria.reduce((acc, c) => acc + c.maxScore, 0)
+  const resetForm = () => {
+    setName('')
+    setQuestionType('rating')
+    setMaxScore('10')
+    setOptionsText('')
+    setCorrectAnswer('')
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const parsedMax = Number(maxScore)
-    if (!name.trim() || !parsedMax || parsedMax <= 0) return
+    if (!name.trim()) return
+
+    const payload: RubricCriterionCreate = {
+      name: name.trim(),
+      question_type: questionType,
+      max_score: questionType === 'rating' ? Number(maxScore) || 10 : undefined,
+    }
+
+    if (questionType === 'multiple_choice') {
+      const options = optionsText
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean)
+      if (options.length < 2 || !correctAnswer.trim()) return
+      payload.options = options
+      payload.correct_answer = correctAnswer.trim()
+    }
+    if (questionType === 'true_false') {
+      payload.correct_answer = correctAnswer || 'true'
+    }
+
     setIsLoading(true)
     try {
-      await onCreate({ name: name.trim(), maxScore: parsedMax })
-      setName('')
-      setMaxScore('')
+      await onCreate(payload)
+      resetForm()
     } finally {
       setIsLoading(false)
     }
@@ -41,14 +77,9 @@ export function RubricsPanel({
 
   return (
     <Card variant="outlined">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-h3 text-gray-900 dark:text-gray-50">
-          Criterios ({criteria.length})
-        </h3>
-        <span className="text-body-sm text-gray-500">
-          Total: {totalMax.toFixed(1)} pts
-        </span>
-      </div>
+      <h3 className="mb-4 text-h3 text-text-primary">
+        Preguntas ({criteria.length})
+      </h3>
 
       <ul className="mb-4 space-y-2">
         <AnimatePresence>
@@ -58,51 +89,85 @@ export function RubricsPanel({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
-              className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2.5 dark:bg-gray-700/50"
+              className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-2.5"
             >
-              <span className="text-body-sm text-gray-800 dark:text-gray-100">
-                {c.name}{' '}
-                <span className="text-gray-400">
-                  ({c.maxScore.toFixed(1)})
+              <span className="text-primary-300">{typeIcon[c.question_type]}</span>
+              <div className="flex-1">
+                <p className="text-body-sm font-medium text-text-primary">
+                  {c.name}
+                </p>
+                {c.question_type === 'multiple_choice' && c.options && (
+                  <p className="text-caption text-text-secondary">
+                    {c.options.join(' · ')}
+                  </p>
+                )}
+              </div>
+              {c.question_type === 'rating' && (
+                <span className="text-caption text-text-secondary">
+                  max {c.max_score}
                 </span>
-              </span>
-              <button
-                type="button"
-                aria-label={`Eliminar ${c.name}`}
-                onClick={() => onDelete(c.id)}
-                className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-error"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </button>
+              )}
             </motion.li>
           ))}
         </AnimatePresence>
         {criteria.length === 0 && (
-          <p className="py-4 text-center text-body-sm text-gray-400">
-            Aún no hay criterios definidos.
+          <p className="py-4 text-center text-body-sm text-text-secondary">
+            Aún no hay preguntas.
           </p>
         )}
       </ul>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <Input
-          placeholder="Nombre del criterio"
+          placeholder="Enunciado de la pregunta"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="flex-1"
         />
-        <Input
-          type="number"
-          step="0.5"
-          min="0"
-          placeholder="Puntaje máx."
-          value={maxScore}
-          onChange={(e) => setMaxScore(e.target.value)}
-          className="sm:w-32"
+        <Select
+          value={questionType}
+          onChange={(v) => setQuestionType(v as QuestionType)}
+          options={typeOptions}
         />
-        <Button type="submit" isLoading={isLoading}>
-          <PlusIcon className="h-4 w-4" />
-          Agregar
+
+        {questionType === 'rating' && (
+          <Input
+            type="number"
+            min="1"
+            placeholder="Puntaje máximo"
+            value={maxScore}
+            onChange={(e) => setMaxScore(e.target.value)}
+          />
+        )}
+
+        {questionType === 'multiple_choice' && (
+          <>
+            <Input
+              placeholder="Opciones separadas por coma (mín. 2)"
+              value={optionsText}
+              onChange={(e) => setOptionsText(e.target.value)}
+            />
+            <Input
+              placeholder="Respuesta correcta (debe coincidir con una opción)"
+              value={correctAnswer}
+              onChange={(e) => setCorrectAnswer(e.target.value)}
+            />
+          </>
+        )}
+
+        {questionType === 'true_false' && (
+          <Select
+            value={correctAnswer || 'true'}
+            onChange={setCorrectAnswer}
+            options={[
+              { label: 'Verdadero', value: 'true' },
+              { label: 'Falso', value: 'false' },
+            ]}
+          />
+        )}
+
+        <Button type="submit" fullWidth isLoading={isLoading}>
+          <Plus className="h-4 w-4" />
+          Agregar pregunta
         </Button>
       </form>
     </Card>

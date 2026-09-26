@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { X } from 'lucide-react'
 
 export interface ModalProps {
   isOpen: boolean
@@ -40,21 +40,19 @@ export function Modal({
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
-            className={`h-full w-full overflow-y-auto rounded-t-2xl bg-white p-6 shadow-xl sm:h-auto sm:rounded-2xl dark:bg-gray-800 ${sizeClasses[size]}`}
+            className={`h-full w-full overflow-y-auto rounded-t-3xl border border-white/10 bg-surface-elevated p-6 shadow-2xl sm:h-auto sm:rounded-3xl ${sizeClasses[size]}`}
           >
             <div className="mb-4 flex items-center justify-between">
               {title && (
-                <h3 className="text-h3 text-gray-900 dark:text-gray-50">
-                  {title}
-                </h3>
+                <h3 className="text-h3 text-text-primary">{title}</h3>
               )}
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Cerrar"
-                className="ml-auto rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700"
+                className="ml-auto rounded-full p-1 text-text-secondary hover:bg-white/10 hover:text-text-primary"
               >
-                <XMarkIcon className="h-5 w-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
             {children}

@@ -9,9 +9,9 @@ export interface CardProps extends HTMLMotionProps<'div'> {
 }
 
 const variantClasses: Record<NonNullable<CardProps['variant']>, string> = {
-  elevated: 'bg-white shadow-lg shadow-gray-200/50 dark:bg-gray-800',
-  outlined: 'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700',
-  filled: 'bg-gray-50 dark:bg-gray-700/50',
+  elevated: 'glass-card shadow-xl shadow-black/30',
+  outlined: 'rounded-3xl border border-white/10 bg-surface',
+  filled: 'rounded-3xl bg-surface-elevated',
 }
 
 /** Generic surface container with elevated/outlined/filled styles. */

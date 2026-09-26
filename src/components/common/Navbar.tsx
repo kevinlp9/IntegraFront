@@ -12,13 +12,13 @@ export function Navbar({ logo, children, className }: NavbarProps) {
   return (
     <nav
       className={cn(
-        'sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white/80 px-4 backdrop-blur-md sm:px-6 dark:border-gray-700 dark:bg-primary-900/80',
+        'sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-white/10 bg-surface/80 px-4 backdrop-blur-md sm:px-6',
         className,
       )}
     >
       <div className="flex items-center gap-2">
         {logo ?? (
-          <span className="text-h3 font-semibold text-primary-700 dark:text-primary-300">
+          <span className="font-display text-h3 font-bold text-primary-300">
             Integra
           </span>
         )}

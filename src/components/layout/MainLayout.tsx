@@ -15,7 +15,7 @@ const pageVariants = {
 /** Main app shell: header + animated content container, responsive width. */
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-primary-900">
+    <div className="min-h-screen bg-background">
       <Header />
       <motion.main
         variants={pageVariants}
