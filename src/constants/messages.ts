@@ -1,6 +1,8 @@
 export const MESSAGES = {
   auth: {
     loginError: 'No se pudo iniciar sesión con Google.',
+    loginSuccess: '¡Bienvenido! Sesión iniciada.',
+    registerSuccess: 'Cuenta creada correctamente 🎉',
     logoutSuccess: 'Sesión cerrada correctamente.',
   },
   room: {

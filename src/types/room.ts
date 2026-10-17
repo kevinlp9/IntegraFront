@@ -44,6 +44,14 @@ export interface RoomJoinResponse {
   rubric: RubricCriterion[]
 }
 
+/** Resumen de una sala en la lista 'Mis salas' del alumno. */
+export interface AlumnoRoomSummary {
+  room_id: number
+  name: string
+  join_code: string
+  status: RoomStatus
+}
+
 export interface CriterionAverage {
   criteria_id: number
   name: string

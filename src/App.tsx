@@ -4,12 +4,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastContainer } from '@/components/common/Toast'
 import { Spinner } from '@/components/common/Spinner'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+import { AlumnoProtectedRoute } from '@/components/layout/AlumnoProtectedRoute'
 import { useAuth } from '@/hooks/useAuth'
 
-const LoginPage = lazy(() => import('@/pages/host/LoginPage'))
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
+const RegisterPage = lazy(() => import('@/pages/host/RegisterPage'))
 const DashboardPage = lazy(() => import('@/pages/host/DashboardPage'))
 const RoomDetailPage = lazy(() => import('@/pages/host/RoomDetailPage'))
 const ReportsPage = lazy(() => import('@/pages/host/ReportsPage'))
+const AlumnoRegisterPage = lazy(
+  () => import('@/pages/participant/AlumnoRegisterPage'),
+)
 const JoinPage = lazy(() => import('@/pages/participant/JoinPage'))
 const PlayPage = lazy(() => import('@/pages/participant/PlayPage'))
 
@@ -39,12 +44,37 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/join" element={<JoinPage />} />
-        <Route path="/join/:code" element={<JoinPage />} />
-        <Route path="/play/:code" element={<PlayPage />} />
+        <Route path="/alumno/login" element={<Navigate to="/" replace />} />
+        <Route path="/alumno/register" element={<AlumnoRegisterPage />} />
+
+        <Route
+          path="/join"
+          element={
+            <AlumnoProtectedRoute>
+              <JoinPage />
+            </AlumnoProtectedRoute>
+          }
+        />
+        <Route
+          path="/join/:code"
+          element={
+            <AlumnoProtectedRoute>
+              <JoinPage />
+            </AlumnoProtectedRoute>
+          }
+        />
+        <Route
+          path="/play/:code"
+          element={
+            <AlumnoProtectedRoute>
+              <PlayPage />
+            </AlumnoProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"
@@ -71,7 +101,7 @@ function AppRoutes() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   )

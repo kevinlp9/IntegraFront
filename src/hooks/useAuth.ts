@@ -3,28 +3,36 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase, loginWithGoogle } from '@/services/supabase'
 import { authService } from '@/services/auth.service'
+import { tokenStore } from '@/services/token'
 import { useAuthStore } from '@/store/authStore'
 import { MESSAGES } from '@/constants/messages'
+import type { ProfeLoginPayload, ProfeRegisterPayload } from '@/types'
 
 /**
- * Manages the host's Supabase session: listens for auth state changes,
- * syncs the profile via GET /api/auth/me once logged in, and exposes
- * login/logout actions.
+ * Gestiona la sesión del profe (host) con dos vías:
+ *   - Google (Supabase OAuth): escucha cambios de sesión y sincroniza el perfil.
+ *   - Correo + contraseña: token propio del backend guardado en tokenStore.
  */
 export function useAuth() {
   const navigate = useNavigate()
   const {
     session,
     hostUser,
+    hostToken,
     isLoggedIn,
     isInitialized,
     setSession,
     setHostUser,
+    setHostToken,
     setInitialized,
     logout,
   } = useAuthStore()
 
   useEffect(() => {
+    // Rehidrata el token propio (login con contraseña) guardado en localStorage.
+    const storedHostToken = tokenStore.getHost()
+    if (storedHostToken) setHostToken(storedHostToken)
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setInitialized()
@@ -38,16 +46,16 @@ export function useAuth() {
     )
 
     return () => listener.subscription.unsubscribe()
-  }, [setSession, setInitialized])
+  }, [setSession, setHostToken, setInitialized])
 
   useEffect(() => {
-    if (session && !hostUser) {
+    if ((session || hostToken) && !hostUser) {
       authService
         .me()
         .then(setHostUser)
         .catch(() => toast.error(MESSAGES.generic.networkError))
     }
-  }, [session, hostUser, setHostUser])
+  }, [session, hostToken, hostUser, setHostUser])
 
   const login = useCallback(async () => {
     try {
@@ -57,12 +65,44 @@ export function useAuth() {
     }
   }, [])
 
+  const loginWithPassword = useCallback(
+    async (payload: ProfeLoginPayload) => {
+      const res = await authService.loginProfe(payload)
+      setHostToken(res.access_token)
+      setHostUser(res.user)
+      toast.success(MESSAGES.auth.loginSuccess)
+      navigate('/dashboard')
+    },
+    [navigate, setHostToken, setHostUser],
+  )
+
+  const register = useCallback(
+    async (payload: ProfeRegisterPayload) => {
+      const res = await authService.registerProfe(payload)
+      setHostToken(res.access_token)
+      setHostUser(res.user)
+      toast.success(MESSAGES.auth.registerSuccess)
+      navigate('/dashboard')
+    },
+    [navigate, setHostToken, setHostUser],
+  )
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
+    tokenStore.clearHost()
     logout()
     toast.success(MESSAGES.auth.logoutSuccess)
     navigate('/login')
   }, [logout, navigate])
 
-  return { session, hostUser, isLoggedIn, isInitialized, login, logout: signOut }
+  return {
+    session,
+    hostUser,
+    isLoggedIn,
+    isInitialized,
+    login,
+    loginWithPassword,
+    register,
+    logout: signOut,
+  }
 }

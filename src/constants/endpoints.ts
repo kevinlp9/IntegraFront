@@ -3,17 +3,20 @@ const rawApiUrl = import.meta.env.VITE_API_URL as string | undefined
 if (!rawApiUrl) {
   // eslint-disable-next-line no-console
   console.warn(
-    'VITE_API_URL no está definida. Usando http://localhost:8000 como ' +
-      'fallback de desarrollo. Configúrala en producción (Render, etc).',
+    'VITE_API_URL no está definida. Configúrala en producción (Render, etc).',
   )
 }
 
 /** Base URL of the backend API. Always set VITE_API_URL explicitly in production. */
-export const API_BASE_URL = (rawApiUrl ?? 'http://localhost:8000').replace(/\/$/, '')
+export const API_BASE_URL = (rawApiUrl as string).replace(/\/$/, '')
 
 export const ENDPOINTS = {
   auth: {
     me: '/api/auth/me',
+    register: '/api/auth/register',
+    login: '/api/auth/login',
+    alumnoRegister: '/api/auth/alumno/register',
+    alumnoLogin: '/api/auth/alumno/login',
   },
   rooms: {
     create: '/api/rooms',
@@ -27,6 +30,8 @@ export const ENDPOINTS = {
     finish: (roomId: number) => `/api/rooms/${roomId}/finish`,
     report: (roomId: number) => `/api/rooms/${roomId}/report`,
     joinByCode: (joinCode: string) => `/api/rooms/join/${joinCode}`,
+    enroll: (joinCode: string) => `/api/rooms/join/${joinCode}`,
+    myRooms: '/api/rooms/mis-salas',
   },
   evaluations: {
     submit: '/api/evaluations/submit',
