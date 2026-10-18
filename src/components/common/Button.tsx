@@ -14,11 +14,11 @@ export interface ButtonProps
 
 const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-primary-600 text-white shadow-lg shadow-primary-600/30 hover:bg-primary-500 hover:scale-105 focus:ring-primary-400',
+    'bg-hero-gradient bg-[length:160%_160%] bg-left text-white shadow-lg shadow-primary-600/30 transition-[background-position,box-shadow,transform] hover:bg-right hover:shadow-primary-500/50 hover:scale-[1.03] focus:ring-primary-400',
   secondary:
-    'border border-white/15 bg-white/5 text-text-primary hover:bg-white/10 hover:scale-105 focus:ring-white/20',
+    'border border-white/15 bg-white/5 text-text-primary hover:border-white/25 hover:bg-white/10 hover:scale-[1.03] focus:ring-white/20',
   danger:
-    'bg-error text-white shadow-lg shadow-error/30 hover:bg-red-500 hover:scale-105 focus:ring-red-400',
+    'bg-error text-white shadow-lg shadow-error/30 hover:bg-red-500 hover:scale-[1.03] focus:ring-red-400',
 }
 
 const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {

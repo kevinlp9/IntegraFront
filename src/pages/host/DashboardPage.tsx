@@ -35,7 +35,7 @@ export default function DashboardPage() {
     <MainLayout>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-h2 text-text-primary">
+          <h1 className="font-display text-h2 text-gradient">
             Mis Salas
           </h1>
           <p className="text-body-sm text-text-secondary">

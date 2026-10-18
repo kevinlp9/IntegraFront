@@ -59,6 +59,7 @@ export default {
         fadeIn: 'fadeIn 0.3s ease-in',
         slideUp: 'slideUp 0.3s ease-out',
         pulseGlow: 'pulseGlow 2s ease-in-out infinite',
+        drift: 'drift 14s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -72,6 +73,10 @@ export default {
         pulseGlow: {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.5)' },
           '50%': { boxShadow: '0 0 0 8px rgba(16, 185, 129, 0)' },
+        },
+        drift: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(3%, 4%) scale(1.08)' },
         },
       },
     },

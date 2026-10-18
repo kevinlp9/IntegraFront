@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, Loader2, PartyPopper } from 'lucide-react'
 import { Card } from '@/components/common/Card'
 import { Button } from '@/components/common/Button'
+import { AmbientBackground } from '@/components/common/AmbientBackground'
 import { QuestionCard } from '@/components/questions/QuestionCard'
 import type { QuestionAnswerValue } from '@/components/questions/QuestionCard'
 import { useParticipantStore } from '@/store/participantStore'
@@ -156,8 +157,9 @@ function QuestionForm({
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8">
-      <div className="mx-auto max-w-xl space-y-6">
+    <div className="relative min-h-screen bg-background px-4 py-8">
+      <AmbientBackground />
+      <div className="relative mx-auto max-w-xl space-y-6">
         <Card variant="filled" className="text-center">
           <p className="text-body-sm font-medium text-primary-300">
             🎤 Evaluando
@@ -195,8 +197,9 @@ function QuestionForm({
 
 function CenteredMessage({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
-      {children}
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+      <AmbientBackground />
+      <div className="relative">{children}</div>
     </div>
   )
 }

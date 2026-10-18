@@ -24,9 +24,18 @@ export function Card({
 }: CardProps) {
   return (
     <motion.div
-      whileHover={hoverable ? { scale: 1.02, y: -2 } : undefined}
+      whileHover={
+        hoverable
+          ? { scale: 1.02, y: -4, borderColor: 'rgba(167,139,250,0.4)' }
+          : undefined
+      }
       transition={{ duration: 0.2 }}
-      className={cn('rounded-2xl p-6', variantClasses[variant], className)}
+      className={cn(
+        'rounded-2xl p-6 transition-shadow duration-300',
+        variantClasses[variant],
+        hoverable && 'hover:shadow-2xl hover:shadow-primary-600/20',
+        className,
+      )}
       {...rest}
     >
       {children}

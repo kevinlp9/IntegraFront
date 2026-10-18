@@ -57,16 +57,16 @@ export default function RoomDetailPage() {
         </Link>
       </div>
 
-      <div className="mb-6 flex gap-2 border-b border-white/10">
+      <div className="mb-6 inline-flex gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
             className={cn(
-              'px-4 py-2.5 text-body-sm font-medium transition',
+              'rounded-lg px-4 py-2 text-body-sm font-semibold transition',
               tab === t.id
-                ? 'border-b-2 border-primary-500 text-text-primary'
+                ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
                 : 'text-text-secondary hover:text-text-primary',
             )}
           >

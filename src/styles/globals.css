@@ -9,16 +9,42 @@
   body {
     @apply bg-background text-text-primary font-sans antialiased;
   }
+  ::selection {
+    @apply bg-primary-500/40 text-white;
+  }
+  /* Thin, brand-tinted scrollbar (WebKit + Firefox). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.5) transparent;
+  }
+  ::-webkit-scrollbar {
+    @apply h-2 w-2;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-primary-600/40 transition-colors hover:bg-primary-500/60;
+  }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-2xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
   }
   .glass-card {
-    @apply rounded-3xl border border-white/10 bg-surface/80 backdrop-blur-md;
+    @apply relative rounded-3xl border border-white/10 bg-surface/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md;
   }
   .input {
-    @apply w-full rounded-xl border border-white/10 bg-surface px-4 py-2.5 text-body text-text-primary placeholder:text-text-secondary/60 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30;
+    @apply w-full rounded-xl border border-white/10 bg-surface px-4 py-2.5 text-body text-text-primary placeholder:text-text-secondary/60 transition-colors duration-200 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30;
+  }
+  /* Subtle dotted-grid ambience for hero/empty backgrounds. */
+  .bg-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* Gradient heading text used for emphasis across hero titles. */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-300 via-primary-400 to-accent-blue bg-clip-text text-transparent;
   }
 }

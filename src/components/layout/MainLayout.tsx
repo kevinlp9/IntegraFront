@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Header } from './Header'
+import { AmbientBackground } from '@/components/common/AmbientBackground'
 
 export interface MainLayoutProps {
   children: ReactNode
@@ -15,7 +16,8 @@ const pageVariants = {
 /** Main app shell: header + animated content container, responsive width. */
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      <AmbientBackground />
       <Header />
       <motion.main
         variants={pageVariants}
