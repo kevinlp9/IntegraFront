@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, Loader2, PartyPopper } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Loader2, PartyPopper } from 'lucide-react'
 import { Card } from '@/components/common/Card'
 import { Button } from '@/components/common/Button'
 import { AmbientBackground } from '@/components/common/AmbientBackground'
@@ -160,6 +160,14 @@ function QuestionForm({
     <div className="relative min-h-screen bg-background px-4 py-8">
       <AmbientBackground />
       <div className="relative mx-auto max-w-xl space-y-6">
+        <Link
+          to="/join"
+          className="inline-flex items-center gap-1.5 text-body-sm font-medium text-text-secondary transition hover:text-text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Mis salas
+        </Link>
+
         <Card variant="filled" className="text-center">
           <p className="text-body-sm font-medium text-primary-300">
             🎤 Evaluando
@@ -199,6 +207,13 @@ function CenteredMessage({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
       <AmbientBackground />
+      <Link
+        to="/join"
+        className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-body-sm font-medium text-text-secondary transition hover:bg-white/10 hover:text-text-primary sm:left-6 sm:top-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Mis salas
+      </Link>
       <div className="relative">{children}</div>
     </div>
   )

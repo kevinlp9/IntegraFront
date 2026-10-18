@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ChartBar } from 'lucide-react'
+import { ArrowLeft, ChartBar } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Button } from '@/components/common/Button'
 import { RubricsPanel } from '@/components/teacher/RubricsPanel'
@@ -48,7 +48,15 @@ export default function RoomDetailPage() {
   return (
     <MainLayout>
       <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-        <h1 className="font-display text-h2 text-text-primary">{room.name}</h1>
+        <div className="flex items-center gap-3">
+          <Link to="/dashboard">
+            <Button variant="secondary" size="sm">
+              <ArrowLeft className="h-4 w-4" />
+              Mis Salas
+            </Button>
+          </Link>
+          <h1 className="font-display text-h2 text-text-primary">{room.name}</h1>
+        </div>
         <Link to={`/rooms/${room.id}/report`}>
           <Button variant="secondary">
             <ChartBar className="h-4 w-4" />
