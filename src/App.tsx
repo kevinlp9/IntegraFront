@@ -9,13 +9,10 @@ import { useAuth } from '@/hooks/useAuth'
 
 const HomePage = lazy(() => import('@/pages/HomePage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
-const RegisterPage = lazy(() => import('@/pages/host/RegisterPage'))
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const DashboardPage = lazy(() => import('@/pages/host/DashboardPage'))
 const RoomDetailPage = lazy(() => import('@/pages/host/RoomDetailPage'))
 const ReportsPage = lazy(() => import('@/pages/host/ReportsPage'))
-const AlumnoRegisterPage = lazy(
-  () => import('@/pages/participant/AlumnoRegisterPage'),
-)
 const JoinPage = lazy(() => import('@/pages/participant/JoinPage'))
 const PlayPage = lazy(() => import('@/pages/participant/PlayPage'))
 
@@ -50,7 +47,7 @@ function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/alumno/login" element={<Navigate to="/login" replace />} />
-        <Route path="/alumno/register" element={<AlumnoRegisterPage />} />
+        <Route path="/alumno/register" element={<Navigate to="/register" replace />} />
 
         <Route
           path="/join"

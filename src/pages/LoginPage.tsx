@@ -155,21 +155,10 @@ export default function LoginPage() {
       )}
 
       <p className="mt-6 text-center text-body-sm text-text-secondary">
-        {isAlumno ? (
-          <>
-            ¿Eres alumno y no tienes cuenta?{' '}
-            <Link to="/alumno/register" className="font-semibold text-primary-300">
-              Regístrate como alumno
-            </Link>
-          </>
-        ) : (
-          <>
-            ¿Eres profesor y no tienes cuenta?{' '}
-            <Link to="/register" className="font-semibold text-primary-300">
-              Regístrate como profesor
-            </Link>
-          </>
-        )}
+        ¿No tienes cuenta?{' '}
+        <Link to="/register" className="font-semibold text-primary-300">
+          Regístrate
+        </Link>
       </p>
       <BackToHomeLink />
     </AuthLayout>
