@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { ArrowLeft } from 'lucide-react'
 import { AmbientBackground } from '@/components/common/AmbientBackground'
 import { Logo } from '@/components/common/Logo'
 
@@ -14,6 +16,13 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10">
       <AmbientBackground />
+      <Link
+        to="/"
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-body-sm font-medium text-text-secondary transition hover:bg-white/10 hover:text-text-primary sm:left-6 sm:top-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Inicio
+      </Link>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

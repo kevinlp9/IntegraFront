@@ -5,7 +5,6 @@ import { GraduationCap, LogIn, Presentation } from 'lucide-react'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
-import { BackToHomeLink } from '@/components/common/BackToHomeLink'
 import { useAuth } from '@/hooks/useAuth'
 import { useAlumnoAuth } from '@/hooks/useAlumnoAuth'
 import { useNotification } from '@/hooks/useNotification'
@@ -160,7 +159,6 @@ export default function LoginPage() {
           Regístrate
         </Link>
       </p>
-      <BackToHomeLink />
     </AuthLayout>
   )
 }
