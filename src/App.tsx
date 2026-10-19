@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AlumnoProtectedRoute } from '@/components/layout/AlumnoProtectedRoute'
 import { useAuth } from '@/hooks/useAuth'
 
+const HomePage = lazy(() => import('@/pages/HomePage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/host/RegisterPage'))
 const DashboardPage = lazy(() => import('@/pages/host/DashboardPage'))
@@ -44,11 +45,11 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/alumno/login" element={<Navigate to="/" replace />} />
+        <Route path="/alumno/login" element={<Navigate to="/login" replace />} />
         <Route path="/alumno/register" element={<AlumnoRegisterPage />} />
 
         <Route
