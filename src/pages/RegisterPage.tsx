@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { GraduationCap, Presentation, UserPlus } from 'lucide-react'
+import { GraduationCap, LogIn, Presentation, UserPlus } from 'lucide-react'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -27,7 +27,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState<Role>('alumno')
   const notify = useNotification()
 
-  const { register: registerProfesor } = useAuth()
+  const { register: registerProfesor, login: loginGoogle } = useAuth()
   const { register: registerAlumno } = useAlumnoAuth()
 
   const [boleta, setBoleta] = useState('')
@@ -171,6 +171,20 @@ export default function RegisterPage() {
           {isAlumno ? 'Crear cuenta de alumno' : 'Crear cuenta de profesor'}
         </Button>
       </form>
+
+      {!isAlumno && (
+        <>
+          <div className="my-5 flex items-center gap-3">
+            <span className="h-px flex-1 bg-white/10" />
+            <span className="text-caption text-text-secondary">o</span>
+            <span className="h-px flex-1 bg-white/10" />
+          </div>
+          <Button variant="secondary" fullWidth size="lg" onClick={loginGoogle}>
+            <LogIn className="h-5 w-5" />
+            Continuar con Google
+          </Button>
+        </>
+      )}
 
       <p className="mt-6 text-center text-body-sm text-text-secondary">
         ¿Ya tienes cuenta?{' '}
