@@ -71,7 +71,7 @@ export function useAuth() {
       setHostToken(res.access_token)
       setHostUser(res.user)
       toast.success(MESSAGES.auth.loginSuccess)
-      navigate('/dashboard')
+      navigate('/grupos')
     },
     [navigate, setHostToken, setHostUser],
   )
@@ -82,7 +82,7 @@ export function useAuth() {
       setHostToken(res.access_token)
       setHostUser(res.user)
       toast.success(MESSAGES.auth.registerSuccess)
-      navigate('/dashboard')
+      navigate('/grupos')
     },
     [navigate, setHostToken, setHostUser],
   )

@@ -5,9 +5,14 @@ export type QuestionType =
   | 'true_false'
   | 'open_text'
 
+import type { Period, RoomMode } from './grupo'
+
 export interface Room {
   id: number
   teacher_id: string
+  grupo_id: number | null
+  period: Period
+  mode: RoomMode
   name: string
   join_code: string
   status: RoomStatus
@@ -30,6 +35,7 @@ export interface Exposition {
   id: number
   room_id: number
   name: string
+  boleta: string | null
   order: number
   final_score: number | null
 }
@@ -38,6 +44,7 @@ export interface RoomJoinResponse {
   room_id: number
   room_name: string
   room_status: RoomStatus
+  mode: RoomMode
   is_exposition_active: boolean
   current_exposition: Exposition | null
   /** Rubric without correct_answer (public shape). */
@@ -50,6 +57,9 @@ export interface AlumnoRoomSummary {
   name: string
   join_code: string
   status: RoomStatus
+  grupo_id: number | null
+  period: Period
+  mode: RoomMode
 }
 
 export interface CriterionAverage {
@@ -91,10 +101,14 @@ export interface RubricCriterionCreate {
 export interface CreateExpositionPayload {
   name: string
   order?: number
+  boleta?: string
 }
 
 export interface CreateRoomPayload {
   name: string
+  grupo_id?: number
+  period?: Period
+  mode?: RoomMode
 }
 
 export interface EvaluationScoreInput {

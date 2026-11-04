@@ -11,10 +11,15 @@ const HomePage = lazy(() => import('@/pages/HomePage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const DashboardPage = lazy(() => import('@/pages/host/DashboardPage'))
+const GruposPage = lazy(() => import('@/pages/host/GruposPage'))
+const GrupoDetailPage = lazy(() => import('@/pages/host/GrupoDetailPage'))
 const RoomDetailPage = lazy(() => import('@/pages/host/RoomDetailPage'))
 const ReportsPage = lazy(() => import('@/pages/host/ReportsPage'))
 const JoinPage = lazy(() => import('@/pages/participant/JoinPage'))
 const PlayPage = lazy(() => import('@/pages/participant/PlayPage'))
+const StudentHistoryPage = lazy(
+  () => import('@/pages/participant/StudentHistoryPage'),
+)
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,12 +78,36 @@ function AppRoutes() {
             </AlumnoProtectedRoute>
           }
         />
+        <Route
+          path="/grupos/:grupoId/historial"
+          element={
+            <AlumnoProtectedRoute>
+              <StudentHistoryPage />
+            </AlumnoProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos"
+          element={
+            <ProtectedRoute>
+              <GruposPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos/:grupoId"
+          element={
+            <ProtectedRoute>
+              <GrupoDetailPage />
             </ProtectedRoute>
           }
         />

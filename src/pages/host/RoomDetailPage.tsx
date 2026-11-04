@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, ChartBar } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Button } from '@/components/common/Button'
@@ -8,6 +9,7 @@ import { ExpositionsPanel } from '@/components/teacher/ExpositionsPanel'
 import { LiveControlPanel } from '@/components/teacher/LiveControlPanel'
 import { QRCodeCard } from '@/components/teacher/QRCodeCard'
 import { useRoom } from '@/hooks/useRoom'
+import { grupoService } from '@/services/grupo.service'
 import { cn } from '@/utils/helpers'
 
 type Tab = 'questions' | 'elements' | 'live'
@@ -30,6 +32,12 @@ export default function RoomDetailPage() {
     isMutating,
   } = useRoom(numericId)
   const [tab, setTab] = useState<Tab>('live')
+
+  const { data: roster } = useQuery({
+    queryKey: ['grupo-roster', room?.grupo_id],
+    queryFn: () => grupoService.listRoster(room!.grupo_id!),
+    enabled: !!room?.grupo_id && room?.mode === 'individual',
+  })
 
   if (isLoading || !room) {
     return (
@@ -108,6 +116,8 @@ export default function RoomDetailPage() {
         <ExpositionsPanel
           expositions={expositions}
           currentExpositionId={room.current_exposition_id}
+          mode={room.mode}
+          roster={roster ?? []}
           onCreate={createExposition}
         />
       )}

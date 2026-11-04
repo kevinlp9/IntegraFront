@@ -4,6 +4,7 @@ import type {
   AlumnoRoomSummary,
   EvaluationSubmit,
   EvaluationSubmitResponse,
+  GrupoJoinRequest,
   RoomJoinResponse,
 } from '@/types'
 
@@ -14,11 +15,18 @@ export const evaluationService = {
     return api.get<RoomJoinResponse>(ENDPOINTS.rooms.joinByCode(joinCode), 'alumno')
   },
 
-  /** Inscribe al alumno en la sala con el código y devuelve su estado actual. */
-  async enroll(joinCode: string): Promise<RoomJoinResponse> {
+  /**
+   * Inscribe al alumno en la sala con el código y devuelve su estado actual.
+   * Si la sala pertenece a un grupo, se debe enviar `payload` (nombre +
+   * contraseña de acceso) para validar contra la lista oficial del profe.
+   */
+  async enroll(
+    joinCode: string,
+    payload?: GrupoJoinRequest,
+  ): Promise<RoomJoinResponse> {
     return api.post<RoomJoinResponse>(
       ENDPOINTS.rooms.enroll(joinCode),
-      undefined,
+      payload,
       'alumno',
     )
   },

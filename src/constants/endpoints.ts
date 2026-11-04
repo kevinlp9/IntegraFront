@@ -33,6 +33,18 @@ export const ENDPOINTS = {
     enroll: (joinCode: string) => `/api/rooms/join/${joinCode}`,
     myRooms: '/api/rooms/mis-salas',
   },
+  grupos: {
+    create: '/api/grupos',
+    list: '/api/grupos',
+    detail: (grupoId: number) => `/api/grupos/${grupoId}`,
+    update: (grupoId: number) => `/api/grupos/${grupoId}`,
+    roster: (grupoId: number) => `/api/grupos/${grupoId}/roster`,
+    profeGrade: (grupoId: number) => `/api/grupos/${grupoId}/profe-grade`,
+    claims: (grupoId: number) => `/api/grupos/${grupoId}/claims`,
+    rooms: (grupoId: number) => `/api/grupos/${grupoId}/rooms`,
+    accumulated: (grupoId: number) => `/api/grupos/${grupoId}/accumulated`,
+    myHistory: (grupoId: number) => `/api/grupos/${grupoId}/mi-historial`,
+  },
   evaluations: {
     submit: '/api/evaluations/submit',
   },

@@ -1,5 +1,6 @@
 export * from './auth'
 export * from './room'
+export * from './grupo'
 
 export interface ApiErrorPayload {
   detail:
