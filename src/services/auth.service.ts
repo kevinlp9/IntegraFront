@@ -3,11 +3,15 @@ import { api } from './api'
 import { tokenStore } from './token'
 import type {
   AlumnoLoginPayload,
+  AlumnoProfileUpdatePayload,
   AlumnoRegisterPayload,
   AlumnoTokenResponse,
+  AlumnoUser,
   HostTokenResponse,
   HostUser,
+  PasswordChangePayload,
   ProfeLoginPayload,
+  ProfeProfileUpdatePayload,
   ProfeRegisterPayload,
 } from '@/types'
 
@@ -59,6 +63,33 @@ export const authService = {
     )
     tokenStore.setAlumno(res.access_token)
     return res
+  },
+
+  // --- Gestión de cuenta ---
+
+  /** Actualiza el correo del profe autenticado. */
+  async updateProfeProfile(payload: ProfeProfileUpdatePayload): Promise<HostUser> {
+    return api.put<HostUser>(ENDPOINTS.auth.profile, payload, 'host')
+  },
+
+  /** Cambia la contraseña del profe autenticado. */
+  async changeProfePassword(payload: PasswordChangePayload): Promise<void> {
+    await api.put<null>(ENDPOINTS.auth.password, payload, 'host')
+  },
+
+  /** Devuelve el perfil del alumno autenticado. */
+  async alumnoMe(): Promise<AlumnoUser> {
+    return api.get<AlumnoUser>(ENDPOINTS.auth.alumnoMe, 'alumno')
+  },
+
+  /** Actualiza el nombre y correo del alumno autenticado. */
+  async updateAlumnoProfile(payload: AlumnoProfileUpdatePayload): Promise<AlumnoUser> {
+    return api.put<AlumnoUser>(ENDPOINTS.auth.alumnoProfile, payload, 'alumno')
+  },
+
+  /** Cambia la contraseña del alumno autenticado. */
+  async changeAlumnoPassword(payload: PasswordChangePayload): Promise<void> {
+    await api.put<null>(ENDPOINTS.auth.alumnoPassword, payload, 'alumno')
   },
 }
 

@@ -6,9 +6,12 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { Card } from '@/components/common/Card'
 import { Button } from '@/components/common/Button'
 import { Modal } from '@/components/common/Modal'
-import { Input } from '@/components/common/Input'
+import { Input, Select } from '@/components/common/Input'
+import { Tooltip } from '@/components/common/Tooltip'
 import { RoomStatusBadge } from '@/components/common/RoomStatusBadge'
 import { useRooms } from '@/hooks/useRoom'
+import { useGrupos } from '@/hooks/useGrupo'
+import { MODE_LABELS, PERIOD_LABELS, type Period, type RoomMode } from '@/types'
 
 const containerVariants = {
   animate: { transition: { staggerChildren: 0.08 } },
@@ -21,13 +24,29 @@ const itemVariants = {
 /** Host dashboard: lists rooms and allows creating new ones. */
 export default function DashboardPage() {
   const { rooms, isLoading, createRoom, isCreating } = useRooms()
+  const { grupos } = useGrupos()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
+  const [grupoId, setGrupoId] = useState('')
+  const [period, setPeriod] = useState<Period>('parcial_1')
+  const [mode, setMode] = useState<RoomMode>('team')
+
+  const reset = () => {
+    setName('')
+    setGrupoId('')
+    setPeriod('parcial_1')
+    setMode('team')
+  }
 
   const handleCreate = async () => {
     if (!name.trim()) return
-    await createRoom({ name: name.trim() })
-    setName('')
+    await createRoom({
+      name: name.trim(),
+      ...(grupoId
+        ? { grupo_id: Number(grupoId), period, mode }
+        : {}),
+    })
+    reset()
     setIsModalOpen(false)
   }
 
@@ -101,6 +120,39 @@ export default function DashboardPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <Tooltip label="Opcional: asigna la sala a un grupo para que su calificación entre en el acumulado del semestre.">
+            <Select
+              label="Grupo (opcional)"
+              value={grupoId}
+              onChange={setGrupoId}
+              options={[
+                { value: '', label: 'Sin grupo (sala suelta)' },
+                ...grupos.map((g) => ({ value: String(g.id), label: g.name })),
+              ]}
+            />
+          </Tooltip>
+          {grupoId && (
+            <div className="grid grid-cols-2 gap-3">
+              <Select
+                label="Parcial"
+                value={period}
+                onChange={(v) => setPeriod(v as Period)}
+                options={Object.entries(PERIOD_LABELS).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+              />
+              <Select
+                label="Modo"
+                value={mode}
+                onChange={(v) => setMode(v as RoomMode)}
+                options={Object.entries(MODE_LABELS).map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+              />
+            </div>
+          )}
           <div className="flex gap-3">
             <Button
               variant="secondary"

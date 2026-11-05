@@ -4,10 +4,10 @@ import {
   BarChart3,
   GraduationCap,
   LogIn,
-  QrCode,
+  MessageSquare,
   Radio,
   Sparkles,
-  Star,
+  Users,
   UserPlus,
 } from 'lucide-react'
 import { AmbientBackground } from '@/components/common/AmbientBackground'
@@ -17,28 +17,28 @@ import { Card } from '@/components/common/Card'
 
 const FEATURES = [
   {
-    icon: QrCode,
-    title: 'Únete en segundos',
+    icon: Users,
+    title: 'Grupos del semestre',
     description:
-      'Comparte un código o un QR y tus alumnos entran a la sala desde su celular, sin instalar nada.',
+      'Crea tus grupos, administra la lista de alumnos y conserva el historial completo del semestre en un solo lugar.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Acumulado de calificaciones',
+    description:
+      'Suma parcial 1, 2, 3, extraordinario y la calificación del profesor para obtener automáticamente el promedio final.',
   },
   {
     icon: Radio,
     title: 'Evaluación en vivo',
     description:
-      'Activa exposiciones una a una y recibe las respuestas de todo el grupo en tiempo real.',
+      'Activa salas por equipo o individuales y recibe las calificaciones de todo el grupo en tiempo real.',
   },
   {
-    icon: Star,
-    title: 'Rúbricas flexibles',
+    icon: MessageSquare,
+    title: 'Retroalimentación por alumno',
     description:
-      'Crea criterios de calificación, opción múltiple, verdadero/falso o respuesta abierta.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Reportes al instante',
-    description:
-      'Al cerrar la sala obtén un ranking y el desglose de puntajes por criterio, listo para exportar.',
+      'Cada alumno consulta su calificación y retroalimentación en cada evento desde su propia cuenta.',
   },
 ] as const
 
@@ -47,20 +47,20 @@ const STEPS = [
     role: 'Profesor',
     icon: Sparkles,
     items: [
-      'Crea una sala y define tu rúbrica de evaluación.',
-      'Comparte el código de la sala con tu grupo.',
-      'Activa cada exposición y controla el avance en vivo.',
-      'Cierra la sala y descarga el reporte final.',
+      'Crea tu grupo y registra la lista de alumnos con boleta y nombre.',
+      'Comparte el código del grupo y aprueba a quienes se inscriben.',
+      'Abre salas por equipo o individuales en cada parcial.',
+      'Consulta el acumulado y el promedio final del semestre.',
     ],
   },
   {
     role: 'Alumno',
     icon: GraduationCap,
     items: [
-      'Regístrate con tu boleta en segundos.',
-      'Ingresa el código que te comparta tu profesor.',
-      'Evalúa cada exposición desde tu celular.',
-      'Consulta el ranking al finalizar la sesión.',
+      'Regístrate y únete a tu grupo con tu nombre y boleta.',
+      'Confirma tu identidad con tu contraseña y correo.',
+      'Participa en cada sala desde tu celular.',
+      'Revisa tu calificación y retroalimentación de cada evento.',
     ],
   },
 ] as const
@@ -105,16 +105,16 @@ export default function HomePage() {
         >
           <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-400/30 bg-primary-500/10 px-4 py-1.5 text-body-sm font-medium text-primary-200">
             <Sparkles className="h-4 w-4" />
-            Evaluaciones interactivas en vivo
+            Tu salón de clases del semestre
           </span>
           <h1 className="max-w-3xl font-display text-h1 text-text-primary">
-            Convierte tus exposiciones en{' '}
-            <span className="text-gradient">evaluaciones en vivo</span>
+            Gestiona tus grupos y lleva el{' '}
+            <span className="text-gradient">acumulado de calificaciones</span>
           </h1>
           <p className="mt-5 max-w-xl text-body-lg text-text-secondary">
-            Integra conecta al profesor y a sus alumnos en una sola sala:
-            crea rúbricas, comparte un código y recibe calificaciones y
-            reportes al instante.
+            Integra reúne a profesores y alumnos en un mismo espacio: crea
+            grupos, evalúa en vivo por equipo o individual, y obtén el promedio
+            final del semestre con la retroalimentación de cada evento.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link to="/register">
@@ -136,11 +136,11 @@ export default function HomePage() {
         <section className="pb-16 sm:pb-24">
           <div className="mb-10 text-center">
             <h2 className="font-display text-h2 text-text-primary">
-              Todo lo que necesitas para evaluar en clase
+              Todo tu semestre en una sola plataforma
             </h2>
             <p className="mt-2 text-body-sm text-text-secondary">
-              Diseñado para sesiones presenciales, con todos en el mismo
-              dispositivo que ya tienen a la mano.
+              Desde la lista de tu grupo hasta el promedio final, con
+              evaluación en vivo cuando la necesites.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -173,8 +173,8 @@ export default function HomePage() {
               ¿Cómo funciona?
             </h2>
             <p className="mt-2 text-body-sm text-text-secondary">
-              Un flujo simple tanto para quien organiza como para quien
-              evalúa.
+              Un flujo simple tanto para quien imparte como para quien
+              aprende.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -205,7 +205,7 @@ export default function HomePage() {
       </main>
 
       <footer className="relative z-10 border-t border-white/10 py-6 text-center text-caption text-text-secondary">
-        © {new Date().getFullYear()} Integra · Evaluaciones interactivas en vivo
+        © {new Date().getFullYear()} Integra · Tu salón de clases del semestre
       </footer>
     </div>
   )

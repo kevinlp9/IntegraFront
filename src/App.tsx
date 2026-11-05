@@ -15,10 +15,14 @@ const GruposPage = lazy(() => import('@/pages/host/GruposPage'))
 const GrupoDetailPage = lazy(() => import('@/pages/host/GrupoDetailPage'))
 const RoomDetailPage = lazy(() => import('@/pages/host/RoomDetailPage'))
 const ReportsPage = lazy(() => import('@/pages/host/ReportsPage'))
+const AccountPage = lazy(() => import('@/pages/host/AccountPage'))
 const JoinPage = lazy(() => import('@/pages/participant/JoinPage'))
 const PlayPage = lazy(() => import('@/pages/participant/PlayPage'))
 const StudentHistoryPage = lazy(
   () => import('@/pages/participant/StudentHistoryPage'),
+)
+const AlumnoAccountPage = lazy(
+  () => import('@/pages/participant/AlumnoAccountPage'),
 )
 
 const queryClient = new QueryClient({
@@ -86,12 +90,28 @@ function AppRoutes() {
             </AlumnoProtectedRoute>
           }
         />
+        <Route
+          path="/mi-cuenta"
+          element={
+            <AlumnoProtectedRoute>
+              <AlumnoAccountPage />
+            </AlumnoProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cuenta"
+          element={
+            <ProtectedRoute>
+              <AccountPage />
             </ProtectedRoute>
           }
         />

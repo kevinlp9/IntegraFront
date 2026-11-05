@@ -2,9 +2,11 @@ import { ENDPOINTS } from '@/constants/endpoints'
 import { api } from './api'
 import type {
   AccumulatedReport,
+  AlumnoGrupo,
   ClaimReview,
   CreateGrupoPayload,
   Grupo,
+  GrupoJoinRequest,
   ProfeGradeUpdate,
   Room,
   RosterRow,
@@ -62,5 +64,22 @@ export const grupoService = {
   /** Historial del alumno autenticado dentro del grupo (feedback por evento). */
   async myHistory(grupoId: number): Promise<StudentHistory> {
     return api.get<StudentHistory>(ENDPOINTS.grupos.myHistory(grupoId), 'alumno')
+  },
+
+  /** Lista los grupos a los que el alumno autenticado se ha unido. */
+  async listMyGrupos(): Promise<AlumnoGrupo[]> {
+    return api.get<AlumnoGrupo[]>(ENDPOINTS.grupos.myGrupos, 'alumno')
+  },
+
+  /** El alumno se une a un grupo por código, validando su identidad. */
+  async joinByCode(
+    joinCode: string,
+    payload: GrupoJoinRequest,
+  ): Promise<AlumnoGrupo> {
+    return api.post<AlumnoGrupo>(
+      ENDPOINTS.grupos.joinByCode(joinCode),
+      payload,
+      'alumno',
+    )
   },
 }

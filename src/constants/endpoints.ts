@@ -15,8 +15,13 @@ export const ENDPOINTS = {
     me: '/api/auth/me',
     register: '/api/auth/register',
     login: '/api/auth/login',
+    profile: '/api/auth/profile',
+    password: '/api/auth/password',
     alumnoRegister: '/api/auth/alumno/register',
     alumnoLogin: '/api/auth/alumno/login',
+    alumnoMe: '/api/auth/alumno/me',
+    alumnoProfile: '/api/auth/alumno/profile',
+    alumnoPassword: '/api/auth/alumno/password',
   },
   rooms: {
     create: '/api/rooms',
@@ -44,6 +49,8 @@ export const ENDPOINTS = {
     rooms: (grupoId: number) => `/api/grupos/${grupoId}/rooms`,
     accumulated: (grupoId: number) => `/api/grupos/${grupoId}/accumulated`,
     myHistory: (grupoId: number) => `/api/grupos/${grupoId}/mi-historial`,
+    myGrupos: '/api/grupos/mis-grupos',
+    joinByCode: (joinCode: string) => `/api/grupos/join/${joinCode}`,
   },
   evaluations: {
     submit: '/api/evaluations/submit',

@@ -45,3 +45,18 @@ export interface AlumnoRegisterPayload {
   nombre: string
   password: string
 }
+
+/** Gestión de cuenta: actualización de perfil y cambio de contraseña. */
+export interface ProfeProfileUpdatePayload {
+  email: string
+}
+
+export interface AlumnoProfileUpdatePayload {
+  nombre: string
+  email: string
+}
+
+export interface PasswordChangePayload {
+  current_password?: string
+  new_password: string
+}

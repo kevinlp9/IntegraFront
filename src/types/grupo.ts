@@ -87,6 +87,14 @@ export interface GrupoJoinRequest {
   email: string
 }
 
+export interface AlumnoGrupo {
+  id: number
+  name: string
+  semester: string | null
+  join_code: string
+  claim_status: ClaimStatus | null
+}
+
 export interface AccumulatedRow {
   boleta: string
   nombre: string

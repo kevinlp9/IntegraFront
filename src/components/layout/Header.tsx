@@ -8,6 +8,7 @@ import { cn } from '@/utils/helpers'
 const NAV_LINKS = [
   { to: '/grupos', label: 'Grupos' },
   { to: '/dashboard', label: 'Salas' },
+  { to: '/cuenta', label: 'Cuenta' },
 ]
 
 /** App header showing navigation, the current host and a logout action. */
