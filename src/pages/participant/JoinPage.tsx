@@ -1,19 +1,24 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
 import {
   BookOpen,
+  ChevronRight,
   DoorOpen,
   LogOut,
   Rocket,
-  Settings,
+  UserCog,
   Users,
 } from 'lucide-react'
-import { AuthLayout } from '@/components/layout/AuthLayout'
+import { AmbientBackground } from '@/components/common/AmbientBackground'
+import { Logo } from '@/components/common/Logo'
+import { Card } from '@/components/common/Card'
 import { Input } from '@/components/common/Input'
 import { Button } from '@/components/common/Button'
 import { Modal } from '@/components/common/Modal'
+import { RoomStatusBadge } from '@/components/common/RoomStatusBadge'
 import { evaluationService } from '@/services/evaluation.service'
 import { grupoService } from '@/services/grupo.service'
 import { useParticipantStore } from '@/store/participantStore'
@@ -21,23 +26,27 @@ import { useAlumnoAuth } from '@/hooks/useAlumnoAuth'
 import { useNotification } from '@/hooks/useNotification'
 import { isValidJoinCode } from '@/utils/validators'
 import { formatJoinCode } from '@/utils/formatters'
-import type { AlumnoRoomSummary, ClaimStatus, RoomStatus } from '@/types'
+import { cn } from '@/utils/helpers'
+import type { AlumnoRoomSummary, ClaimStatus } from '@/types'
 
-const STATUS_LABEL: Record<RoomStatus, string> = {
-  waiting: 'En espera',
-  active: 'En vivo',
-  finished: 'Finalizada',
-}
-
-const CLAIM_LABEL: Record<ClaimStatus, string> = {
-  pending: 'Pendiente de validar',
-  approved: 'Validado por el profe',
-  rejected: 'Acceso rechazado',
+const CLAIM_STYLES: Record<ClaimStatus, { label: string; className: string }> = {
+  pending: {
+    label: 'Pendiente de validar',
+    className: 'bg-accent-amber/15 text-accent-amber',
+  },
+  approved: {
+    label: 'Validado',
+    className: 'bg-accent-green/15 text-accent-green',
+  },
+  rejected: {
+    label: 'Rechazado',
+    className: 'bg-accent-red/15 text-accent-red',
+  },
 }
 
 type Pending = { type: 'room' | 'grupo'; code: string }
 
-/** Join page del alumno: entrar a salas y grupos por código, con validación. */
+/** Home del alumno: dashboard para entrar a salas y grupos con validación. */
 export default function JoinPage() {
   const navigate = useNavigate()
   const notify = useNotification()
@@ -163,134 +172,228 @@ export default function JoinPage() {
     }
   }
 
+  const initial = (alumno?.nombre?.trim()?.[0] ?? '?').toUpperCase()
+
   return (
-    <AuthLayout
-      title="📚 Salas y Grupos"
-      subtitle={alumno ? `Hola, ${alumno.nombre} (${alumno.boleta})` : 'Evaluaciones en vivo'}
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Código de Sala"
-          placeholder="Ej: ROOM-9F3A"
-          value={joinCode}
-          onChange={(e) => setJoinCode(e.target.value)}
-          error={errors.code}
-          className="text-center font-display text-h3 tracking-widest"
-        />
-        <Button type="submit" fullWidth size="lg" isLoading={isLoading}>
-          <Rocket className="h-5 w-5" />
-          Entrar a Sala
-        </Button>
-      </form>
+    <div className="relative min-h-screen bg-background">
+      <AmbientBackground />
 
-      <form onSubmit={handleGrupoSubmit} className="mt-4 space-y-4">
-        <Input
-          label="Código de Grupo"
-          placeholder="Ej: CLASS-2B7D"
-          value={grupoCode}
-          onChange={(e) => setGrupoCode(e.target.value)}
-          error={errors.grupo}
-          helperText="Únete a la clase del semestre para ver tu historial y acumulado."
-          className="text-center font-display text-h3 tracking-widest"
-        />
-        <Button type="submit" variant="secondary" fullWidth size="lg">
-          <Users className="h-5 w-5" />
-          Entrar a Grupo
-        </Button>
-      </form>
+      {/* Top bar */}
+      <header className="relative z-10 border-b border-white/10">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <Link to="/mi-cuenta">
+              <Button variant="secondary" size="sm">
+                <UserCog className="h-4 w-4" />
+                <span className="hidden sm:inline">Mi cuenta</span>
+              </Button>
+            </Link>
+            <Button variant="secondary" size="sm" onClick={logout}>
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      {/* Mis grupos: clases a las que el alumno ya se unió */}
-      <div className="mt-8">
-        <h2 className="mb-3 text-body-sm font-semibold uppercase tracking-wide text-text-secondary">
-          Mis grupos
-        </h2>
-        {loadingGrupos ? (
-          <p className="text-body-sm text-text-secondary">Cargando…</p>
-        ) : myGrupos && myGrupos.length > 0 ? (
-          <ul className="space-y-2">
-            {myGrupos.map((grupo) => (
-              <li key={grupo.id}>
-                <Link
-                  to={`/grupos/${grupo.id}/historial`}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium text-text-primary">
-                      {grupo.name}
-                    </span>
-                    <span className="block text-caption text-text-secondary">
-                      {grupo.semester ? `${grupo.semester} · ` : ''}
-                      {grupo.claim_status
-                        ? CLAIM_LABEL[grupo.claim_status]
-                        : ''}
-                    </span>
-                  </span>
-                  <BookOpen className="h-5 w-5 shrink-0 text-primary-300" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-body-sm text-text-secondary">
-            Aún no te has unido a ningún grupo. Ingresa el código de tu clase.
-          </p>
-        )}
-      </div>
+      <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Greeting */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="mb-8 flex items-center gap-4"
+        >
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-500/15 font-display text-h3 font-bold text-primary-200">
+            {initial}
+          </span>
+          <div className="min-w-0">
+            <h1 className="truncate font-display text-h2 text-text-primary">
+              Hola, {alumno?.nombre ?? 'alumno'}
+            </h1>
+            {alumno && (
+              <p className="text-body-sm text-text-secondary">
+                Boleta {alumno.boleta} · {alumno.email}
+              </p>
+            )}
+          </div>
+        </motion.div>
 
-      {/* Mis salas: solo las salas a las que el alumno ya se unió */}
-      <div className="mt-8">
-        <h2 className="mb-3 text-body-sm font-semibold uppercase tracking-wide text-text-secondary">
-          Mis salas
-        </h2>
+        {/* Join cards */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Card variant="outlined">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-500/15 text-primary-300">
+                <Rocket className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-h3 text-text-primary">Entrar a una sala</h2>
+                <p className="text-caption text-text-secondary">
+                  Evaluación en vivo del momento.
+                </p>
+              </div>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <Input
+                label="Código de sala"
+                placeholder="Ej: ROOM-9F3A"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value)}
+                error={errors.code}
+                className="font-display tracking-widest"
+              />
+              <Button type="submit" fullWidth isLoading={isLoading}>
+                <Rocket className="h-4 w-4" />
+                Entrar a sala
+              </Button>
+            </form>
+          </Card>
 
-        {loadingRooms ? (
-          <p className="text-body-sm text-text-secondary">Cargando…</p>
-        ) : myRooms && myRooms.length > 0 ? (
-          <ul className="space-y-2">
-            {myRooms.map((room: AlumnoRoomSummary) => (
-              <li key={room.room_id}>
+          <Card variant="outlined">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-green/15 text-accent-green">
+                <Users className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-h3 text-text-primary">Entrar a un grupo</h2>
+                <p className="text-caption text-text-secondary">
+                  Tu clase del semestre y su historial.
+                </p>
+              </div>
+            </div>
+            <form onSubmit={handleGrupoSubmit} className="space-y-3">
+              <Input
+                label="Código de grupo"
+                placeholder="Ej: CLASS-2B7D"
+                value={grupoCode}
+                onChange={(e) => setGrupoCode(e.target.value)}
+                error={errors.grupo}
+                className="font-display tracking-widest"
+              />
+              <Button type="submit" variant="secondary" fullWidth>
+                <Users className="h-4 w-4" />
+                Entrar a grupo
+              </Button>
+            </form>
+          </Card>
+        </div>
+
+        {/* Mis grupos */}
+        <section className="mt-10">
+          <div className="mb-3 flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary-300" />
+            <h2 className="text-body-sm font-semibold uppercase tracking-wide text-text-secondary">
+              Mis grupos
+            </h2>
+          </div>
+
+          {loadingGrupos ? (
+            <SkeletonList />
+          ) : myGrupos && myGrupos.length > 0 ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {myGrupos.map((grupo) => {
+                const claim = grupo.claim_status
+                  ? CLAIM_STYLES[grupo.claim_status]
+                  : null
+                return (
+                  <Link key={grupo.id} to={`/grupos/${grupo.id}/historial`}>
+                    <Card
+                      variant="outlined"
+                      hoverable
+                      className="flex h-full items-center gap-4 !p-4"
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 text-primary-300">
+                        <BookOpen className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-text-primary">
+                          {grupo.name}
+                        </p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          {grupo.semester && (
+                            <span className="text-caption text-text-secondary">
+                              {grupo.semester}
+                            </span>
+                          )}
+                          {claim && (
+                            <span
+                              className={cn(
+                                'inline-flex rounded-full px-2 py-0.5 text-caption font-semibold',
+                                claim.className,
+                              )}
+                            >
+                              {claim.label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-text-secondary" />
+                    </Card>
+                  </Link>
+                )
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Users className="h-6 w-6" />}
+              text="Aún no te has unido a ningún grupo. Ingresa el código de tu clase arriba."
+            />
+          )}
+        </section>
+
+        {/* Mis salas */}
+        <section className="mt-10">
+          <div className="mb-3 flex items-center gap-2">
+            <DoorOpen className="h-4 w-4 text-primary-300" />
+            <h2 className="text-body-sm font-semibold uppercase tracking-wide text-text-secondary">
+              Mis salas
+            </h2>
+          </div>
+
+          {loadingRooms ? (
+            <SkeletonList />
+          ) : myRooms && myRooms.length > 0 ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {myRooms.map((room: AlumnoRoomSummary) => (
                 <button
+                  key={room.room_id}
                   type="button"
                   onClick={() => enterRoom(room.join_code)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10"
+                  className="text-left"
                 >
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium text-text-primary">
-                      {room.name}
+                  <Card
+                    variant="outlined"
+                    hoverable
+                    className="flex h-full items-center gap-4 !p-4"
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-green/15 text-accent-green">
+                      <DoorOpen className="h-5 w-5" />
                     </span>
-                    <span className="block text-caption text-text-secondary">
-                      {room.join_code} · {STATUS_LABEL[room.status]}
-                    </span>
-                  </span>
-                  <DoorOpen className="h-5 w-5 shrink-0 text-primary-300" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-text-primary">
+                        {room.name}
+                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className="text-caption text-text-secondary">
+                          {room.join_code}
+                        </span>
+                        <RoomStatusBadge status={room.status} />
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-text-secondary" />
+                  </Card>
                 </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-body-sm text-text-secondary">
-            Aún no te has unido a ninguna sala. Ingresa un código para empezar.
-          </p>
-        )}
-      </div>
-
-      <div className="mt-6 flex items-center justify-center gap-4 text-body-sm">
-        <Link
-          to="/mi-cuenta"
-          className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary"
-        >
-          <Settings className="h-4 w-4" />
-          Mi cuenta
-        </Link>
-        <button
-          type="button"
-          onClick={logout}
-          className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary"
-        >
-          <LogOut className="h-4 w-4" />
-          Cerrar sesión
-        </button>
-      </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Rocket className="h-6 w-6" />}
+              text="Aún no te has unido a ninguna sala. Ingresa un código para empezar."
+            />
+          )}
+        </section>
+      </main>
 
       <Modal
         isOpen={pending !== null}
@@ -301,12 +404,11 @@ export default function JoinPage() {
         <div className="space-y-4">
           <p className="text-body-sm text-text-secondary">
             {pending?.type === 'grupo'
-              ? 'Para unirte al grupo'
-              : 'Esta sala pertenece a un grupo'}
-            . Confirma tu nombre completo (debe coincidir con la lista del
-            profe), tu correo y firma con la contraseña de tu propia cuenta.
-            Así queda registrado quién usa esta cuenta y el profe puede
-            validarlo.
+              ? 'Para unirte al grupo, confirma'
+              : 'Esta sala pertenece a un grupo. Confirma'}{' '}
+            tu nombre completo (debe coincidir con la lista del profe), tu correo
+            y firma con la contraseña de tu propia cuenta. Así queda registrado
+            quién usa esta cuenta y el profe puede validarlo.
           </p>
           <Input
             label="Nombre completo"
@@ -336,6 +438,32 @@ export default function JoinPage() {
           </div>
         </div>
       </Modal>
-    </AuthLayout>
+    </div>
+  )
+}
+
+/** Placeholder de carga para las listas. */
+function SkeletonList() {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {[0, 1].map((i) => (
+        <div
+          key={i}
+          className="h-[76px] animate-pulse rounded-3xl border border-white/10 bg-white/5"
+        />
+      ))}
+    </div>
+  )
+}
+
+/** Estado vacío con icono y mensaje. */
+function EmptyState({ icon, text }: { icon: ReactNode; text: string }) {
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-white/15 px-6 py-10 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-text-secondary">
+        {icon}
+      </span>
+      <p className="max-w-sm text-body-sm text-text-secondary">{text}</p>
+    </div>
   )
 }
